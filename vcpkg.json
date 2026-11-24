@@ -1,0 +1,10 @@
+{
+  "name": "recore",
+  "version-string": "0.0.1",
+  "dependencies": [
+    "cli11",
+    "spdlog",
+    "nlohmann-json",
+    "sqlite3"
+  ]
+}

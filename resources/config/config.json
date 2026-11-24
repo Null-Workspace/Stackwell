@@ -1,0 +1,18 @@
+{
+    "application": {
+        "name": "ReCore",
+        "version": "0.0.01"
+    },
+    "logging": {
+        "level": "info",
+        "file": "logs/recore.log",
+        "max_size_mb": 5,
+        "max_files": 3
+    },
+    "plugins": {
+        "directory": "plugins"
+    },
+    "storage": {
+        "directory": "data"
+    }
+}
