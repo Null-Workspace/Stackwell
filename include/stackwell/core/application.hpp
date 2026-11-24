@@ -2,10 +2,10 @@
 
 #include <filesystem>
 
-#include <recore/core/config.hpp>
-#include <recore/plugin/plugin_manager.hpp>
+#include <stackwell/core/config.hpp>
+#include <stackwell/plugin/plugin_manager.hpp>
 
-namespace recore
+namespace stackwell
 {
     class Application
     {

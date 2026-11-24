@@ -4,18 +4,18 @@
 #include <filesystem>
 #include <string>
 
-namespace recore
+namespace stackwell
 {
     struct ApplicationConfig
     {
-        std::string name = "ReCore";
-        std::string version = "0.0.01";
+        std::string name = "Stackwell";
+        std::string version = "0.0.1";
     };
 
     struct LoggingConfig
     {
         std::string level = "info";
-        std::filesystem::path file = "logs/recore.log";
+        std::filesystem::path file = "logs/stackwell.log";
 
         std::size_t max_size_mb = 5;
         std::size_t max_files = 3;

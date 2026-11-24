@@ -6,9 +6,9 @@
 #include <string>
 #include <vector>
 
-#include <recore/plugin/plugin_info.hpp>
+#include <stackwell/plugin/plugin_info.hpp>
 
-namespace recore
+namespace stackwell
 {
     class PluginManager
     {

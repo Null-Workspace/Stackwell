@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <string>
 
-namespace recore
+namespace stackwell
 {
     enum class PluginState
     {

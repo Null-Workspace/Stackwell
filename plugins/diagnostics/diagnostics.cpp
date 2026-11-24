@@ -1,14 +1,14 @@
 
-#include <recore/plugin/plugin_api.h>
+#include <stackwell/plugin/plugin_api.h>
 
 #include <cstdint>
 
 namespace
 {
-    const RecoreHostApi* g_host = nullptr;
+    const StackwellHostApi* g_host = nullptr;
 
-    int RECORE_PLUGIN_CALL initialize(
-        const RecoreHostApi* host
+    int STACKWELL_PLUGIN_CALL initialize(
+        const StackwellHostApi* host
     )
     {
         if (host == nullptr)
@@ -16,12 +16,12 @@ namespace
             return 1;
         }
 
-        if (host->api_version != RECORE_PLUGIN_API_VERSION)
+        if (host->api_version != STACKWELL_PLUGIN_API_VERSION)
         {
             return 2;
         }
 
-        if (host->struct_size < sizeof(RecoreHostApi))
+        if (host->struct_size < sizeof(StackwellHostApi))
         {
             return 3;
         }
@@ -45,7 +45,7 @@ namespace
         return 0;
     }
 
-    void RECORE_PLUGIN_CALL shutdown()
+    void STACKWELL_PLUGIN_CALL shutdown()
     {
         if (g_host != nullptr &&
             g_host->log_info != nullptr)
@@ -58,12 +58,12 @@ namespace
         g_host = nullptr;
     }
 
-    const RecorePluginDescriptor descriptor{
+    const StackwellPluginDescriptor descriptor{
         static_cast<std::uint32_t>(
-            sizeof(RecorePluginDescriptor)
+            sizeof(StackwellPluginDescriptor)
         ),
 
-        RECORE_PLUGIN_API_VERSION,
+        STACKWELL_PLUGIN_API_VERSION,
 
         "diagnostics",
         "0.3.0",
@@ -71,16 +71,16 @@ namespace
         initialize,
         shutdown,
 
-        "ReCore Team",
-        "System diagnostics plugin for ReCore",
-        "0.0.01"
+        "Stackwell Team",
+        "System diagnostics plugin for Stackwell",
+        "0.0.1"
     };
 }
 
 extern "C"
-RECORE_PLUGIN_EXPORT
-const RecorePluginDescriptor*
-RECORE_PLUGIN_CALL recore_plugin_query()
+STACKWELL_PLUGIN_EXPORT
+const StackwellPluginDescriptor*
+STACKWELL_PLUGIN_CALL stackwell_plugin_query()
 {
     return &descriptor;
 }

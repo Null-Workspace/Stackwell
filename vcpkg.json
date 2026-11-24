@@ -1,10 +1,11 @@
 {
-  "name": "recore",
+  "name": "stackwell",
   "version-string": "0.0.1",
   "dependencies": [
     "cli11",
     "spdlog",
     "nlohmann-json",
     "sqlite3"
-  ]
+  ],
+  "builtin-baseline": "2f8bf7a5bad48aaef99d80b221fca712f016ab8f"
 }

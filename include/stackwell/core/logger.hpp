@@ -2,11 +2,11 @@
 
 #include <memory>
 
-#include <recore/core/config.hpp>
+#include <stackwell/core/config.hpp>
 
 #include <spdlog/logger.h>
 
-namespace recore
+namespace stackwell
 {
     class Logger
     {

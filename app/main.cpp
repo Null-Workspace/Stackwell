@@ -1,8 +1,8 @@
 #include <CLI/CLI.hpp>
 #include <cstdint>
-#include <recore/core/application.hpp>
-#include <recore/core/logger.hpp>
-#include <recore/commands/command_registry.hpp>
+#include <stackwell/core/application.hpp>
+#include <stackwell/core/logger.hpp>
+#include <stackwell/commands/command_registry.hpp>
 #include <string>
 #include <exception>
 #include <iostream>
@@ -88,7 +88,7 @@ namespace
 
 int main(int argc, char* argv[])
 {
-    recore::Application application;
+    stackwell::Application application;
 
     try
     {
@@ -98,10 +98,10 @@ int main(int argc, char* argv[])
         application.initialize(executable_path);
 
         CLI::App cli{
-            "ReCore - System Administration Toolkit"
+            "Stackwell - Extensible System Administration Platform"
         };
 
-        recore::register_commands(
+        stackwell::register_commands(
     cli,
     application.get_plugin_manager()
 );
@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
     }
     catch (const std::exception& error)
     {
-        if (auto logger = recore::Logger::get())
+        if (auto logger = stackwell::Logger::get())
         {
             logger->critical(
                 "Unhandled exception: {}",

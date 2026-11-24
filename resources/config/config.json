@@ -1,11 +1,11 @@
 {
     "application": {
-        "name": "ReCore",
-        "version": "0.0.01"
+        "name": "Stackwell",
+        "version": "0.0.1"
     },
     "logging": {
         "level": "info",
-        "file": "logs/recore.log",
+        "file": "logs/stackwell.log",
         "max_size_mb": 5,
         "max_files": 3
     },

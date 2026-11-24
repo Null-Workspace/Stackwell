@@ -1,20 +1,20 @@
-add_library(recore_diagnostics MODULE
+add_library(stackwell_diagnostics MODULE
     diagnostics.cpp
 )
 
-target_include_directories(recore_diagnostics
+target_include_directories(stackwell_diagnostics
     PRIVATE
         ${PROJECT_SOURCE_DIR}/include
 )
 
-target_compile_definitions(recore_diagnostics
+target_compile_definitions(stackwell_diagnostics
     PRIVATE
-        RECORE_PLUGIN_BUILD
+        STACKWELL_PLUGIN_BUILD
 )
 
-set_target_properties(recore_diagnostics PROPERTIES
+set_target_properties(stackwell_diagnostics PROPERTIES
     PREFIX ""
     OUTPUT_NAME "diagnostics"
 )
 
-recore_set_warnings(recore_diagnostics)
+stackwell_set_warnings(stackwell_diagnostics)

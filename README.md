@@ -1,6 +1,6 @@
-# ReCore
+# Stackwell
 
-**ReCore** is a command-line system administration toolkit written in C++20.
+**Stackwell** is an extensible system administration platform written in C++20.
 
 The project uses a modular monolith architecture and supports dynamically loaded plugins through a C ABI.
 
@@ -21,9 +21,9 @@ The project uses a modular monolith architecture and supports dynamically loaded
 
 | Command | Description |
 |---|---|
-| `recore --help` | Display available commands |
-| `recore info` | Display application information |
-| `recore plugins` | List loaded plugins and their metadata |
+| `stackwell --help` | Display available commands |
+| `stackwell info` | Display application information |
+| `stackwell plugins` | List loaded plugins and their metadata |
 
 ## Architecture
 
@@ -83,7 +83,7 @@ The executable and plugin modules are generated in the build distribution direct
 
 ## Project Status
 
-ReCore is under active development. Its architecture, APIs and features may change.
+Stackwell is under active development. Its architecture, APIs and features may change.
 
 ## License
 

@@ -1,4 +1,4 @@
-#include <recore/core/logger.hpp>
+#include <stackwell/core/logger.hpp>
 
 #include <filesystem>
 #include <memory>
@@ -8,11 +8,11 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 
-namespace recore
+namespace stackwell
 {
     namespace
     {
-        constexpr const char* LOGGER_NAME = "recore";
+        constexpr const char* LOGGER_NAME = "stackwell";
         constexpr std::size_t BYTES_IN_MB = 1024 * 1024;
     }
 

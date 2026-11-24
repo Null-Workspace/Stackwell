@@ -1,6 +1,6 @@
 
-#include <recore/plugin/plugin_manager.hpp>
-#include <recore/plugin/plugin_api.h>
+#include <stackwell/plugin/plugin_manager.hpp>
+#include <stackwell/plugin/plugin_api.h>
 
 #include <spdlog/spdlog.h>
 
@@ -26,7 +26,7 @@
     #include <dlfcn.h>
 #endif
 
-namespace recore
+namespace stackwell
 {
     namespace
     {
@@ -232,7 +232,7 @@ namespace recore
         }
 
         bool descriptor_has_field(
-            const RecorePluginDescriptor* descriptor,
+            const StackwellPluginDescriptor* descriptor,
             std::size_t field_offset,
             std::size_t field_size
         )
@@ -241,7 +241,7 @@ namespace recore
                 field_offset + field_size;
         }
 
-        void RECORE_PLUGIN_CALL host_log_info(const char* message)
+        void STACKWELL_PLUGIN_CALL host_log_info(const char* message)
         {
             spdlog::info(
                 "[Plugin] {}",
@@ -249,7 +249,7 @@ namespace recore
             );
         }
 
-        void RECORE_PLUGIN_CALL host_log_error(const char* message)
+        void STACKWELL_PLUGIN_CALL host_log_error(const char* message)
         {
             spdlog::error(
                 "[Plugin] {}",
@@ -257,9 +257,9 @@ namespace recore
             );
         }
 
-        const RecoreHostApi HOST_API{
-            RECORE_PLUGIN_API_VERSION,
-            static_cast<std::uint32_t>(sizeof(RecoreHostApi)),
+        const StackwellHostApi HOST_API{
+            STACKWELL_PLUGIN_API_VERSION,
+            static_cast<std::uint32_t>(sizeof(StackwellHostApi)),
             host_log_info,
             host_log_error
         };
@@ -338,7 +338,7 @@ namespace recore
         void* handle = nullptr;
 #endif
 
-        const RecorePluginDescriptor* descriptor = nullptr;
+        const StackwellPluginDescriptor* descriptor = nullptr;
 
         PluginInfo info;
 
@@ -402,16 +402,16 @@ namespace recore
             return fail(get_platform_error());
         }
 
-        auto query = reinterpret_cast<RecorePluginQueryFn>(
+        auto query = reinterpret_cast<StackwellPluginQueryFn>(
             GetProcAddress(
                 plugin->handle,
-                "recore_plugin_query"
+                "stackwell_plugin_query"
             )
         );
 
         if (query == nullptr)
         {
-            return fail("Missing recore_plugin_query export");
+            return fail("Missing stackwell_plugin_query export");
         }
 #else
         dlerror();
@@ -428,10 +428,10 @@ namespace recore
 
         dlerror();
 
-        auto query = reinterpret_cast<RecorePluginQueryFn>(
+        auto query = reinterpret_cast<StackwellPluginQueryFn>(
             dlsym(
                 plugin->handle,
-                "recore_plugin_query"
+                "stackwell_plugin_query"
             )
         );
 
@@ -442,7 +442,7 @@ namespace recore
 
         if (query == nullptr)
         {
-            return fail("Missing recore_plugin_query export");
+            return fail("Missing stackwell_plugin_query export");
         }
 #endif
 
@@ -463,8 +463,8 @@ namespace recore
         const auto* descriptor = plugin->descriptor;
 
         constexpr std::size_t REQUIRED_DESCRIPTOR_SIZE =
-            offsetof(RecorePluginDescriptor, shutdown) +
-            sizeof(RecorePluginShutdownFn);
+            offsetof(StackwellPluginDescriptor, shutdown) +
+            sizeof(StackwellPluginShutdownFn);
 
         if (static_cast<std::size_t>(descriptor->struct_size) <
             REQUIRED_DESCRIPTOR_SIZE)
@@ -472,7 +472,7 @@ namespace recore
             return fail("Plugin descriptor is too small");
         }
 
-        if (descriptor->api_version != RECORE_PLUGIN_API_VERSION)
+        if (descriptor->api_version != STACKWELL_PLUGIN_API_VERSION)
         {
             return fail("Incompatible plugin API version");
         }
@@ -522,7 +522,7 @@ namespace recore
 
         if (descriptor_has_field(
                 descriptor,
-                offsetof(RecorePluginDescriptor, author),
+                offsetof(StackwellPluginDescriptor, author),
                 sizeof(descriptor->author)))
         {
             if (descriptor->author != nullptr)
@@ -544,7 +544,7 @@ namespace recore
 
         if (descriptor_has_field(
                 descriptor,
-                offsetof(RecorePluginDescriptor, description),
+                offsetof(StackwellPluginDescriptor, description),
                 sizeof(descriptor->description)))
         {
             if (descriptor->description != nullptr)
@@ -566,7 +566,7 @@ namespace recore
 
         if (descriptor_has_field(
                 descriptor,
-                offsetof(RecorePluginDescriptor, min_host_version),
+                offsetof(StackwellPluginDescriptor, min_host_version),
                 sizeof(descriptor->min_host_version)))
         {
             if (descriptor->min_host_version != nullptr)

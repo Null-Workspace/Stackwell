@@ -1,14 +1,15 @@
+
 cmake_minimum_required(VERSION 3.25)
 
 project(
-    ReCore
-    VERSION 0.0.01
-    DESCRIPTION "Cross-platform System Administration Toolkit"
+    Stackwell
+    VERSION 0.0.1
+    DESCRIPTION "Extensible System Administration Platform"
     LANGUAGES CXX
 )
 
 # --------------------------------------------------
-# C++ Configuration
+# C++ Standard
 # --------------------------------------------------
 
 set(CMAKE_CXX_STANDARD 20)
@@ -21,21 +22,21 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Build Options
 # --------------------------------------------------
 
-option(RECORE_BUILD_PLUGINS "Build ReCore plugins" ON)
-option(RECORE_BUILD_TESTS "Build unit tests" OFF)
+option(STACKWELL_BUILD_PLUGINS "Build Stackwell plugins" ON)
+option(STACKWELL_BUILD_TESTS "Build unit tests" OFF)
 
 # --------------------------------------------------
 # Output Directories
 # --------------------------------------------------
 
-set(RECORE_OUTPUT_DIR "${CMAKE_BINARY_DIR}/dist")
+set(STACKWELL_OUTPUT_DIR "${CMAKE_BINARY_DIR}/dist")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
-    "${RECORE_OUTPUT_DIR}/bin"
+    "${STACKWELL_OUTPUT_DIR}/bin"
 )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY
-    "${RECORE_OUTPUT_DIR}/plugins"
+    "${STACKWELL_OUTPUT_DIR}/plugins"
 )
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
@@ -44,22 +45,22 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
 
 foreach(CONFIG DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CONFIG}
-        "${RECORE_OUTPUT_DIR}/bin"
+        "${STACKWELL_OUTPUT_DIR}/bin"
     )
 
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CONFIG}
-        "${RECORE_OUTPUT_DIR}/plugins"
+        "${STACKWELL_OUTPUT_DIR}/plugins"
     )
 endforeach()
 
 # Copy application resources into the distribution directory.
 file(MAKE_DIRECTORY
-    "${RECORE_OUTPUT_DIR}/resources/config"
+    "${STACKWELL_OUTPUT_DIR}/resources/config"
 )
 
 configure_file(
     "${PROJECT_SOURCE_DIR}/resources/config/config.json"
-    "${RECORE_OUTPUT_DIR}/resources/config/config.json"
+    "${STACKWELL_OUTPUT_DIR}/resources/config/config.json"
     COPYONLY
 )
 
@@ -70,7 +71,7 @@ configure_file(
 find_package(CLI11 CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
-find_package(SQLite3 REQUIRED)
+find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
 # --------------------------------------------------
 # Compiler Warnings
@@ -78,39 +79,37 @@ find_package(SQLite3 REQUIRED)
 
 include(cmake/CompilerWarnings.cmake)
 
-
 # --------------------------------------------------
 # Core Library
 # --------------------------------------------------
 
-add_library(recore_core STATIC
+add_library(stackwell_core STATIC
     src/core/application.cpp
     src/core/config.cpp
     src/core/logger.cpp
-
     src/plugin/plugin_manager.cpp
 )
 
-target_include_directories(recore_core
+target_include_directories(stackwell_core
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include
 )
 
-target_link_libraries(recore_core
+target_link_libraries(stackwell_core
     PUBLIC
         spdlog::spdlog
         nlohmann_json::nlohmann_json
-        SQLite3::SQLite3
+        unofficial::sqlite3::sqlite3
         ${CMAKE_DL_LIBS}
 )
 
-recore_set_warnings(recore_core)
+stackwell_set_warnings(stackwell_core)
 
 # --------------------------------------------------
 # Main Executable
 # --------------------------------------------------
 
-add_executable(recore
+add_executable(stackwell
     app/main.cpp
 
     src/commands/command_registry.cpp
@@ -118,23 +117,23 @@ add_executable(recore
     src/commands/plugins_command.cpp
 )
 
-target_link_libraries(recore
+target_link_libraries(stackwell
     PRIVATE
-        recore_core
+        stackwell_core
         CLI11::CLI11
 )
 
-recore_set_warnings(recore)
+stackwell_set_warnings(stackwell)
 
 # --------------------------------------------------
 # Plugins
 # --------------------------------------------------
 
-if(RECORE_BUILD_PLUGINS)
+if(STACKWELL_BUILD_PLUGINS)
     add_subdirectory(plugins/diagnostics)
 
     install(
-        TARGETS recore_diagnostics
+        TARGETS stackwell_diagnostics
         RUNTIME DESTINATION plugins
         LIBRARY DESTINATION plugins
     )
@@ -145,26 +144,25 @@ endif()
 # --------------------------------------------------
 
 install(
-    TARGETS recore
+    TARGETS stackwell
     RUNTIME DESTINATION bin
-)
-
-install(
-    DIRECTORY resources/config/
-    DESTINATION resources/config
 )
 
 # --------------------------------------------------
 # Tests
 # --------------------------------------------------
 
-if(RECORE_BUILD_TESTS)
+if(STACKWELL_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()
 
+# --------------------------------------------------
+# Configuration Summary
+# --------------------------------------------------
+
 message(STATUS "--------------------------------")
-message(STATUS "ReCore ${PROJECT_VERSION}")
+message(STATUS "Stackwell ${PROJECT_VERSION}")
 message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
 message(STATUS "System: ${CMAKE_SYSTEM_NAME}")
 message(STATUS "Architecture: ${CMAKE_SYSTEM_PROCESSOR}")

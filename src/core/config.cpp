@@ -1,4 +1,4 @@
-#include <recore/core/config.hpp>
+#include <stackwell/core/config.hpp>
 
 #include <fstream>
 #include <stdexcept>
@@ -6,7 +6,7 @@
 
 #include <nlohmann/json.hpp>
 
-namespace recore
+namespace stackwell
 {
     namespace
     {

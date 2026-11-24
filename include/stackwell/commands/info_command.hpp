@@ -2,7 +2,7 @@
 
 #include <CLI/CLI.hpp>
 
-namespace recore
+namespace stackwell
 {
     void register_info_command(CLI::App& app);
 }

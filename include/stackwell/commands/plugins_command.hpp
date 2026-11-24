@@ -2,9 +2,9 @@
 
 #include <CLI/CLI.hpp>
 
-#include <recore/plugin/plugin_manager.hpp>
+#include <stackwell/plugin/plugin_manager.hpp>
 
-namespace recore
+namespace stackwell
 {
     void register_plugins_command(
         CLI::App& app,

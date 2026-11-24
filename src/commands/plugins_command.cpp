@@ -1,11 +1,11 @@
 
-#include <recore/commands/plugins_command.hpp>
+#include <stackwell/commands/plugins_command.hpp>
 
-#include <recore/plugin/plugin_info.hpp>
+#include <stackwell/plugin/plugin_info.hpp>
 
 #include <iostream>
 
-namespace recore
+namespace stackwell
 {
     void register_plugins_command(
         CLI::App& app,
@@ -22,7 +22,7 @@ namespace recore
             const auto& plugins = manager.get_plugins();
 
             std::cout << '\n';
-            std::cout << "ReCore Plugin Manager\n";
+            std::cout << "Stackwell Plugin Manager\n";
             std::cout << "=====================\n\n";
 
             if (plugins.empty())

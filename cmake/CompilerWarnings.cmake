@@ -1,5 +1,5 @@
 
-function(recore_set_warnings target)
+function(stackwell_set_warnings target)
 
     if(MSVC)
 

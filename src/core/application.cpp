@@ -1,11 +1,11 @@
-#include <recore/core/application.hpp>
-#include <recore/core/logger.hpp>
+#include <stackwell/core/application.hpp>
+#include <stackwell/core/logger.hpp>
 
 #include <filesystem>
 
 #include <spdlog/spdlog.h>
 
-namespace recore
+namespace stackwell
 {
     void Application::initialize(
         const std::filesystem::path& executable_path

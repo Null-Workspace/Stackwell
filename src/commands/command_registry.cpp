@@ -1,8 +1,8 @@
-#include <recore/commands/command_registry.hpp>
-#include <recore/commands/info_command.hpp>
-#include <recore/commands/plugins_command.hpp>
+#include <stackwell/commands/command_registry.hpp>
+#include <stackwell/commands/info_command.hpp>
+#include <stackwell/commands/plugins_command.hpp>
 
-namespace recore
+namespace stackwell
 {
     void register_commands(
         CLI::App& app,
