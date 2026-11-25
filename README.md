@@ -1,6 +1,8 @@
 
 # Stackwell
 
+https://discord.gg/8hnYveje82
+
 **Stackwell** is an extensible system administration platform written in C++20.
 
 The project follows a modular monolith architecture and supports dynamically loaded plugins through a C ABI.
