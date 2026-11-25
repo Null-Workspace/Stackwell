@@ -1,8 +1,9 @@
+
 # Stackwell
 
 **Stackwell** is an extensible system administration platform written in C++20.
 
-The project uses a modular monolith architecture and supports dynamically loaded plugins through a C ABI.
+The project follows a modular monolith architecture and supports dynamically loaded plugins through a C ABI.
 
 ## Features
 
@@ -32,7 +33,6 @@ The project is organized into several components:
 - **Core** - application lifecycle, configuration and logging
 - **Commands** - command registration and CLI interface
 - **Plugin System** - dynamic module loading and lifecycle management
-- **Storage** - persistent data infrastructure
 - **Plugins** - independently built modules
 
 ## Technology Stack
@@ -87,4 +87,9 @@ Stackwell is under active development. Its architecture, APIs and features may c
 
 ## License
 
-No license has been selected yet. No permission to reuse, modify or redistribute this code is granted by this repository.
+Stackwell is licensed under the Apache License 2.0.
+
+You may use, modify, and distribute Stackwell under the terms
+of this license.
+
+See [LICENSE](LICENSE) and [NOTICE](NOTICE) for details.
