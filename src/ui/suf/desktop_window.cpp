@@ -110,7 +110,7 @@ bool DesktopWindow::create_device_resources() {
  if(FAILED(target_->CreateSolidColorBrush(primary,brush_.GetAddressOf()))){discard_device_resources();return false;}
  return true;
 }
-void DesktopWindow::discard_device_resources(){brush_.Reset();target_.Reset();write_factory_.Reset();d2d_factory_.Reset();}
+void DesktopWindow::discard_device_resources(){text_formats_.clear();brush_.Reset();target_.Reset();write_factory_.Reset();d2d_factory_.Reset();}
 void DesktopWindow::fill_rect(float x,float y,float w,float h,D2D1_COLOR_F c,float radius){
  if(!target_||!brush_)return;brush_->SetColor(c);
  auto rect=D2D1::RoundedRect(D2D1::RectF(x,y,x+w,y+h),radius,radius);
@@ -118,14 +118,19 @@ void DesktopWindow::fill_rect(float x,float y,float w,float h,D2D1_COLOR_F c,flo
 }
 void DesktopWindow::draw_text(const std::wstring& text,float x,float y,float w,float h,float size,D2D1_COLOR_F color,bool bold){
  if(!target_||!brush_||text.empty())return;
- Microsoft::WRL::ComPtr<IDWriteTextFormat> format;
- const HRESULT format_result=write_factory_->CreateTextFormat(
-  L"Segoe UI",nullptr,bold?DWRITE_FONT_WEIGHT_SEMI_BOLD:DWRITE_FONT_WEIGHT_NORMAL,
-  DWRITE_FONT_STYLE_NORMAL,DWRITE_FONT_STRETCH_NORMAL,size,L"en-us",format.GetAddressOf());
- if(FAILED(format_result))return;
- format->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
+ const auto key=std::make_pair(size,bold);
+ auto it=text_formats_.find(key);
+ if(it==text_formats_.end()){
+  Microsoft::WRL::ComPtr<IDWriteTextFormat> created;
+  const HRESULT hr=write_factory_->CreateTextFormat(
+   L"Segoe UI",nullptr,bold?DWRITE_FONT_WEIGHT_SEMI_BOLD:DWRITE_FONT_WEIGHT_NORMAL,
+   DWRITE_FONT_STYLE_NORMAL,DWRITE_FONT_STRETCH_NORMAL,size,L"en-us",created.GetAddressOf());
+  if(FAILED(hr))return;
+  created->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
+  it=text_formats_.emplace(key,std::move(created)).first;
+ }
  brush_->SetColor(color);
- target_->DrawText(text.c_str(),static_cast<UINT32>(text.size()),format.Get(),D2D1::RectF(x,y,x+w,y+h),brush_.Get(),D2D1_DRAW_TEXT_OPTIONS_CLIP);
+ target_->DrawText(text.c_str(),static_cast<UINT32>(text.size()),it->second.Get(),D2D1::RectF(x,y,x+w,y+h),brush_.Get(),D2D1_DRAW_TEXT_OPTIONS_CLIP);
 }
 void DesktopWindow::render() {
  if(!create_device_resources())return;

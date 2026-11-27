@@ -8,6 +8,7 @@
 #include <dwrite.h>
 #include <wrl/client.h>
 #include <string>
+#include <map>
 #include <stackwell/core/application.hpp>
 namespace stackwell::suf {
 class DesktopWindow {
@@ -39,8 +40,7 @@ private:
  Microsoft::WRL::ComPtr<IDWriteFactory> write_factory_;
  Microsoft::WRL::ComPtr<ID2D1HwndRenderTarget> target_;
  Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> brush_;
- Microsoft::WRL::ComPtr<IDWriteTextFormat> regular_;
- Microsoft::WRL::ComPtr<IDWriteTextFormat> semibold_;
+ std::map<std::pair<float, bool>, Microsoft::WRL::ComPtr<IDWriteTextFormat>> text_formats_;
 };
 }
 #endif
