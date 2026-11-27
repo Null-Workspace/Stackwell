@@ -1,201 +1,47 @@
-
 cmake_minimum_required(VERSION 3.25)
-
-project(
-    Stackwell
-    VERSION 0.0.1
-    DESCRIPTION "Extensible System Administration Platform"
-    LANGUAGES CXX
-)
-
-# --------------------------------------------------
-# C++ Standard
-# --------------------------------------------------
-
+project(Stackwell VERSION 0.1.0 DESCRIPTION "Plugin-first application platform" LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-# --------------------------------------------------
-# Build Options
-# --------------------------------------------------
-
-option(STACKWELL_BUILD_PLUGINS "Build Stackwell plugins" ON)
-option(STACKWELL_BUILD_TESTS "Build unit tests" OFF)
-
-# --------------------------------------------------
-# Output Directories
-# --------------------------------------------------
-
-set(STACKWELL_OUTPUT_DIR "${CMAKE_BINARY_DIR}/dist")
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
-    "${STACKWELL_OUTPUT_DIR}/bin"
-)
-
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY
-    "${STACKWELL_OUTPUT_DIR}/plugins"
-)
-
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
-    "${CMAKE_BINARY_DIR}/lib"
-)
-
-foreach(CONFIG DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CONFIG}
-        "${STACKWELL_OUTPUT_DIR}/bin"
-    )
-
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CONFIG}
-        "${STACKWELL_OUTPUT_DIR}/plugins"
-    )
-endforeach()
-
-# Copy application resources into the distribution directory.
-file(MAKE_DIRECTORY
-    "${STACKWELL_OUTPUT_DIR}/resources/config"
-)
-
-configure_file(
-    "${PROJECT_SOURCE_DIR}/resources/config/config.json"
-    "${STACKWELL_OUTPUT_DIR}/resources/config/config.json"
-    COPYONLY
-)
-
-# --------------------------------------------------
-# Dependencies
-# --------------------------------------------------
-
+include(cmake/CompilerWarnings.cmake)
 find_package(CLI11 CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
-find_package(unofficial-sqlite3 CONFIG REQUIRED)
-
-# --------------------------------------------------
-# Compiler Warnings
-# --------------------------------------------------
-
-include(cmake/CompilerWarnings.cmake)
-
-# --------------------------------------------------
-# Core Library
-# --------------------------------------------------
-
+set(STACKWELL_DIST_DIR "${CMAKE_BINARY_DIR}/dist")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${STACKWELL_DIST_DIR}/bin")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${STACKWELL_DIST_DIR}/plugins")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+foreach(CONFIG DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CONFIG} "${STACKWELL_DIST_DIR}/bin")
+ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CONFIG} "${STACKWELL_DIST_DIR}/plugins")
+endforeach()
 add_library(stackwell_core STATIC
-    src/core/application.cpp
-    src/core/config.cpp
-    src/core/logger.cpp
-    src/access_recovery/access_recovery.cpp
-    src/plugin/plugin_manager.cpp
-)
-
-target_include_directories(stackwell_core
-    PUBLIC
-        ${PROJECT_SOURCE_DIR}/include
-)
-
-target_link_libraries(stackwell_core
-    PUBLIC
-        spdlog::spdlog
-        nlohmann_json::nlohmann_json
-        unofficial::sqlite3::sqlite3
-        ${CMAKE_DL_LIBS}
-)
-
+ src/core/application.cpp src/core/config.cpp src/core/logger.cpp
+ src/plugin/plugin_manager.cpp)
+target_include_directories(stackwell_core PUBLIC "${PROJECT_SOURCE_DIR}/include")
+target_link_libraries(stackwell_core PUBLIC spdlog::spdlog nlohmann_json::nlohmann_json ${CMAKE_DL_LIBS})
+target_compile_definitions(stackwell_core PUBLIC STACKWELL_VERSION="${PROJECT_VERSION}")
 stackwell_set_warnings(stackwell_core)
-
 if(WIN32)
-    target_link_libraries(stackwell_core PRIVATE Advapi32)
+ target_link_libraries(stackwell_core PRIVATE Advapi32)
 endif()
-
-# --------------------------------------------------
-# Main Executable
-# --------------------------------------------------
-
-add_executable(stackwell
-    app/main.cpp
-
-    src/commands/command_registry.cpp
-    src/commands/info_command.cpp
-    src/commands/plugins_command.cpp
-    src/commands/access_recovery_command.cpp
-)
-
-target_link_libraries(stackwell
-    PRIVATE
-        stackwell_core
-        CLI11::CLI11
-)
-
+add_executable(stackwell app/main.cpp src/commands/command_registry.cpp
+ src/commands/info_command.cpp src/commands/plugins_command.cpp)
+target_link_libraries(stackwell PRIVATE stackwell_core CLI11::CLI11)
 stackwell_set_warnings(stackwell)
-
-# --------------------------------------------------
-# Native Desktop Application (Windows)
-# --------------------------------------------------
-
 if(WIN32)
-    add_executable(stackwell-desktop WIN32
-        app/desktop_main.cpp
-        src/ui/suf/desktop_window.cpp
-    )
-
-    target_link_libraries(stackwell-desktop
-        PRIVATE
-            stackwell_core
-            d2d1
-            dwrite
-            comdlg32
-    )
-
-    stackwell_set_warnings(stackwell-desktop)
-
-    install(
-        TARGETS stackwell-desktop
-        RUNTIME DESTINATION bin
-    )
+ add_executable(stackwell-desktop WIN32 app/desktop_main.cpp src/ui/suf/desktop_window.cpp)
+ target_link_libraries(stackwell-desktop PRIVATE stackwell_core d2d1 dwrite)
+ stackwell_set_warnings(stackwell-desktop)
 endif()
-
-# --------------------------------------------------
-# Plugins
-# --------------------------------------------------
-
-if(STACKWELL_BUILD_PLUGINS)
-    add_subdirectory(plugins/diagnostics)
-
-    install(
-        TARGETS stackwell_diagnostics
-        RUNTIME DESTINATION plugins
-        LIBRARY DESTINATION plugins
-    )
+file(MAKE_DIRECTORY "${STACKWELL_DIST_DIR}/resources/config")
+configure_file("${PROJECT_SOURCE_DIR}/resources/config/config.json"
+ "${STACKWELL_DIST_DIR}/resources/config/config.json" COPYONLY)
+install(TARGETS stackwell RUNTIME DESTINATION bin)
+if(WIN32)
+ install(TARGETS stackwell-desktop RUNTIME DESTINATION bin)
 endif()
-
-# --------------------------------------------------
-# Installation
-# --------------------------------------------------
-
-install(
-    TARGETS stackwell
-    RUNTIME DESTINATION bin
-)
-
-# --------------------------------------------------
-# Tests
-# --------------------------------------------------
-
-if(STACKWELL_BUILD_TESTS)
-    enable_testing()
-    add_subdirectory(tests)
-endif()
-
-# --------------------------------------------------
-# Configuration Summary
-# --------------------------------------------------
-
-message(STATUS "--------------------------------")
 message(STATUS "Stackwell ${PROJECT_VERSION}")
-message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
-message(STATUS "System: ${CMAKE_SYSTEM_NAME}")
-message(STATUS "Architecture: ${CMAKE_SYSTEM_PROCESSOR}")
-message(STATUS "--------------------------------")
+message(STATUS "C++ standard: ${CMAKE_CXX_STANDARD}")
+message(STATUS "Platform: ${CMAKE_SYSTEM_NAME}")

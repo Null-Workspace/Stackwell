@@ -1,141 +1,57 @@
-
 # Stackwell
 
-https://discord.gg/8hnYveje82
+Stackwell is a minimal, plugin-first application host written in C++20.
 
-**Stackwell** is an extensible system administration platform written in C++20.
+The host provides infrastructure only: application lifecycle, configuration, logging,
+plugin discovery and plugin lifecycle. Product functionality belongs in plugins.
+A plugin is distributed as one native module file (`.dll` on Windows, `.so` on Linux,
+`.dylib` on macOS) placed directly in the configured plugin directory. The host scans
+that directory only; it does not require a folder or sidecar manifest for each plugin.
 
-The project follows a modular monolith architecture and supports dynamically loaded plugins through a C ABI.
+## Components
 
-## Features
+- **Core** — startup/shutdown, configuration and logging.
+- **Plugin runtime** — native module loading, ABI/version validation and lifecycle.
+- **CLI** — a thin frontend for host information and plugin inventory.
+- **Desktop** — a native Windows frontend using Win32, Direct2D and DirectWrite.
 
-- Native Windows desktop application (Stackwell Desktop / SUF foundation)
-- Command-line interface powered by CLI11
-- Structured logging with spdlog
-- JSON-based application configuration
-- Dynamic plugin loading
-- Plugin API version validation
-- Host and plugin version compatibility checks
-- Plugin metadata support
-- SQLite integration
-- CMake-based build system
-- vcpkg dependency management
+The host contains no bundled utility modules or example plugins. With an empty plugin
+directory, Stackwell remains an empty host and plugin manager.
 
-## Desktop Application (Windows)
+## Build
 
-The Windows build produces two frontends over the same `stackwell_core` library:
-
-- `stackwell.exe` - the existing CLI frontend
-- `stackwell-desktop.exe` - the native desktop frontend built with Win32, Direct2D and DirectWrite
-
-The initial desktop shell includes Overview, Plugin Manager, Access Recovery, Diagnostics and Settings pages. Access Recovery actions are read-only and use the existing Core module.
-
-Build both frontends with:
+Requirements: C++20 compiler, CMake 3.25+, vcpkg.
 
 ```powershell
 cmake --preset "Visual Studio Community 2026 Release - amd64"
 cmake --build --preset "Visual Studio Community 2026 Release - amd64-debug"
 ```
 
-Launch the desktop application:
+Executables are placed in `out/build/<preset>/dist/bin`. Plugins are loaded from
+`out/build/<preset>/dist/plugins`.
 
-```powershell
-& ".\out\build\Visual Studio Community 2026 Release - amd64\dist\bin\stackwell-desktop.exe"
-```
+## Plugin ABI
 
-## Current Commands
+The C-compatible contract is declared in
+`include/stackwell/plugin/plugin_api.h`. A plugin exports
+`stackwell_plugin_query`, returns a descriptor, and implements initialize/shutdown.
+The host validates the descriptor and API version before initialization.
 
-| Command | Description |
-|---|---|
-| `stackwell --help` | Display available commands |
-| `stackwell info` | Display application information |
-| `stackwell plugins` | List loaded plugins and their metadata |
-| `stackwell access-recovery scan --path <path>` | Inspect a file or directory security descriptor (read-only) |
-| `stackwell access-recovery policies` | Inspect selected Windows policy registry values (read-only) |
+Plugins are native code and execute in-process with the host's permissions. Only install
+plugins from sources you trust.
 
-## Access Recovery (initial read-only implementation)
+## Configuration
 
-The Access Recovery core module provides diagnostic inspection without modifying
-system permissions or policy settings.
+Runtime configuration is copied to `dist/resources/config/config.json`. Relative
+paths are resolved from the distribution directory. The plugin directory defaults to
+`plugins`; logs and storage default to `logs` and `data`.
 
-- NTFS security descriptor inspection for a selected file or directory
-- Owner SID, DACL presence, inheritance protection and ACE count reporting
-- Read-only inspection of a small set of Windows policy registry values
-- Windows-specific inspection is guarded at compile time; non-Windows builds
-  report the platform limitation
+## Desktop
 
-This first implementation intentionally does not change ownership, ACLs, registry
-values, or administrative policy. A later recovery workflow should use explicit
-plans, backups, authorization checks and user confirmation before any changes.
-
-## UI Architecture
-
-`src/ui/suf` contains the first native SUF desktop shell. It is intentionally kept separate from the CLI frontend and links against the same `stackwell_core` library. The UI currently uses Win32 for the window and input loop, Direct2D for rendering, and DirectWrite for text.
-
-## Architecture
-
-The project is organized into several components:
-
-- **Core** - application lifecycle, configuration and logging
-- **Commands** - command registration and CLI interface
-- **Plugin System** - dynamic module loading and lifecycle management
-- **Plugins** - independently built modules
-
-## Technology Stack
-
-- C++20
-- CMake
-- MSVC, GCC and Clang
-- CLI11
-- spdlog
-- nlohmann/json
-- SQLite
-- vcpkg
-
-## Building on Windows
-
-### Requirements
-
-- Visual Studio 2026 with C++ development tools
-- CMake
-- Git
-- vcpkg
-
-### Configure vcpkg
-
-Set the `VCPKG_ROOT` environment variable to your vcpkg installation directory.
-
-Example:
-
-```powershell
-$env:VCPKG_ROOT = "C:\vcpkg"
-```
-
-### Configure the project
-
-For x64:
-
-```powershell
-cmake --preset "Visual Studio Community 2026 Release - amd64"
-```
-
-### Build
-
-```powershell
-cmake --build --preset "Visual Studio Community 2026 Release - amd64-debug"
-```
-
-The executable and plugin modules are generated in the build distribution directory.
-
-## Project Status
-
-Stackwell is under active development. Its architecture, APIs and features may change.
+The desktop shell contains only Overview, Plugins and Settings. It does not expose
+hardcoded pages for optional functionality. Plugin-specific UI contributions require
+an explicit extension API and are not represented as available until that API exists.
 
 ## License
 
-Stackwell is licensed under the Apache License 2.0.
-
-You may use, modify, and distribute Stackwell under the terms
-of this license.
-
-See [LICENSE](LICENSE) and [NOTICE](NOTICE) for details.
+Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
