@@ -35,7 +35,7 @@ bool DesktopWindow::create(HINSTANCE instance,int show_command) {
  instance_=instance;
  WNDCLASSEXW wc{}; wc.cbSize=sizeof(wc); wc.style=CS_HREDRAW|CS_VREDRAW;
  wc.lpfnWndProc=window_proc; wc.hInstance=instance;
- wc.hCursor=LoadCursorW(nullptr,IDC_ARROW); wc.lpszClassName=L"StackwellDesktop";
+ wc.hCursor=LoadCursorW(nullptr,MAKEINTRESOURCEW(32512)); wc.lpszClassName=L"StackwellDesktop";
  if(!RegisterClassExW(&wc) && GetLastError()!=ERROR_CLASS_ALREADY_EXISTS) return false;
  RECT r{0,0,1120,720};
  AdjustWindowRectEx(&r,WS_POPUP|WS_THICKFRAME|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SYSMENU,FALSE,0);
@@ -108,12 +108,9 @@ bool DesktopWindow::create_device_resources() {
  auto size=D2D1::SizeU(static_cast<UINT32>(std::max<LONG>(1,r.right)),static_cast<UINT32>(std::max<LONG>(1,r.bottom)));
  if(FAILED(d2d_factory_->CreateHwndRenderTarget(D2D1::RenderTargetProperties(),D2D1::HwndRenderTargetProperties(window_,size),target_.GetAddressOf()))){discard_device_resources();return false;}
  if(FAILED(target_->CreateSolidColorBrush(primary,brush_.GetAddressOf()))){discard_device_resources();return false;}
- if(FAILED(write_factory_->CreateTextFormat(L"Segoe UI",nullptr,DWRITE_FONT_WEIGHT_NORMAL,DWRITE_FONT_STYLE_NORMAL,DWRITE_FONT_STRETCH_NORMAL,12.0f,L"en-us",regular_.GetAddressOf()))){discard_device_resources();return false;}
- if(FAILED(write_factory_->CreateTextFormat(L"Segoe UI",nullptr,DWRITE_FONT_WEIGHT_SEMI_BOLD,DWRITE_FONT_STYLE_NORMAL,DWRITE_FONT_STRETCH_NORMAL,12.0f,L"en-us",semibold_.GetAddressOf()))){discard_device_resources();return false;}
- regular_->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);semibold_->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
  return true;
 }
-void DesktopWindow::discard_device_resources(){regular_.Reset();semibold_.Reset();brush_.Reset();target_.Reset();write_factory_.Reset();d2d_factory_.Reset();}
+void DesktopWindow::discard_device_resources(){brush_.Reset();target_.Reset();write_factory_.Reset();d2d_factory_.Reset();}
 void DesktopWindow::fill_rect(float x,float y,float w,float h,D2D1_COLOR_F c,float radius){
  if(!target_||!brush_)return;brush_->SetColor(c);
  auto rect=D2D1::RoundedRect(D2D1::RectF(x,y,x+w,y+h),radius,radius);
@@ -121,7 +118,13 @@ void DesktopWindow::fill_rect(float x,float y,float w,float h,D2D1_COLOR_F c,flo
 }
 void DesktopWindow::draw_text(const std::wstring& text,float x,float y,float w,float h,float size,D2D1_COLOR_F color,bool bold){
  if(!target_||!brush_||text.empty())return;
- auto format=bold?semibold_:regular_;format->SetFontSize(size);brush_->SetColor(color);
+ Microsoft::WRL::ComPtr<IDWriteTextFormat> format;
+ const HRESULT format_result=write_factory_->CreateTextFormat(
+  L"Segoe UI",nullptr,bold?DWRITE_FONT_WEIGHT_SEMI_BOLD:DWRITE_FONT_WEIGHT_NORMAL,
+  DWRITE_FONT_STYLE_NORMAL,DWRITE_FONT_STRETCH_NORMAL,size,L"en-us",format.GetAddressOf());
+ if(FAILED(format_result))return;
+ format->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
+ brush_->SetColor(color);
  target_->DrawText(text.c_str(),static_cast<UINT32>(text.size()),format.Get(),D2D1::RectF(x,y,x+w,y+h),brush_.Get(),D2D1_DRAW_TEXT_OPTIONS_CLIP);
 }
 void DesktopWindow::render() {
