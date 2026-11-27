@@ -1,6 +1,7 @@
 #include <stackwell/commands/command_registry.hpp>
 #include <stackwell/commands/info_command.hpp>
 #include <stackwell/commands/plugins_command.hpp>
+#include <stackwell/commands/access_recovery_command.hpp>
 
 namespace stackwell
 {
@@ -15,5 +16,7 @@ namespace stackwell
             app,
             manager
         );
+
+        register_access_recovery_command(app);
     }
 }

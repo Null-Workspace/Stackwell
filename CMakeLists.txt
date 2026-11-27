@@ -87,6 +87,7 @@ add_library(stackwell_core STATIC
     src/core/application.cpp
     src/core/config.cpp
     src/core/logger.cpp
+    src/access_recovery/access_recovery.cpp
     src/plugin/plugin_manager.cpp
 )
 
@@ -105,6 +106,10 @@ target_link_libraries(stackwell_core
 
 stackwell_set_warnings(stackwell_core)
 
+if(WIN32)
+    target_link_libraries(stackwell_core PRIVATE Advapi32)
+endif()
+
 # --------------------------------------------------
 # Main Executable
 # --------------------------------------------------
@@ -115,6 +120,7 @@ add_executable(stackwell
     src/commands/command_registry.cpp
     src/commands/info_command.cpp
     src/commands/plugins_command.cpp
+    src/commands/access_recovery_command.cpp
 )
 
 target_link_libraries(stackwell
@@ -124,6 +130,32 @@ target_link_libraries(stackwell
 )
 
 stackwell_set_warnings(stackwell)
+
+# --------------------------------------------------
+# Native Desktop Application (Windows)
+# --------------------------------------------------
+
+if(WIN32)
+    add_executable(stackwell-desktop WIN32
+        app/desktop_main.cpp
+        src/ui/suf/desktop_window.cpp
+    )
+
+    target_link_libraries(stackwell-desktop
+        PRIVATE
+            stackwell_core
+            d2d1
+            dwrite
+            comdlg32
+    )
+
+    stackwell_set_warnings(stackwell-desktop)
+
+    install(
+        TARGETS stackwell-desktop
+        RUNTIME DESTINATION bin
+    )
+endif()
 
 # --------------------------------------------------
 # Plugins

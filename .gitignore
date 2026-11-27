@@ -1,68 +1,32 @@
-# Build directories
+# CMake / build output
 /out/
 /build/
 /cmake-build-*/
-/[Bb]uild/
-/[Bb]in/
-/[Oo]bj/
+
+# vcpkg installed dependencies
+/vcpkg_installed/
 
 # Visual Studio
-.vs/
-*.suo
+/.vs/
 *.user
-*.userosscache
-*.sln.docstates
+*.suo
 *.VC.db
 *.VC.VC.opendb
 
-# CMake generated files
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-compile_commands.json
-CMakeUserPresets.json
-Testing/
-
-# vcpkg generated files
-/vcpkg_installed/
-/vcpkg/buildtrees/
-/vcpkg/packages/
-/vcpkg/downloads/
-
-# Compiled binaries and libraries
-*.exe
-*.dll
-*.so
-*.dylib
-*.lib
-*.a
+# Debug symbols and binaries
 *.pdb
 *.ilk
-*.exp
 *.obj
-*.o
+*.lib
+*.dll
+*.exe
+*.exp
 
-# Logs and runtime data
-/logs/
-/data/
-*.log
+# Runtime data
+/logs/*.log
+/data/*.db
+/data/*.sqlite
 
-# Temporary files
-*.tmp
-*.bak
-*.swp
-*.swo
+# Editor / OS files
 .DS_Store
 Thumbs.db
-desktop.ini
-
-# Local secrets and environment files
-.env
-.env.*
-!.env.example
-
-# IDE-local files
-.idea/
-
-# Local VS Code workspace settings
-.vscode/
