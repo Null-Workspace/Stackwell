@@ -18,6 +18,13 @@ that directory only; it does not require a folder or sidecar manifest for each p
 The host contains no bundled utility modules or example plugins. With an empty plugin
 directory, Stackwell remains an empty host and plugin manager.
 
+The community plugin catalog, public SDK header and plugin examples live in the separate
+[Stackwell Plugins repository](https://github.com/Null-Workspace/Stackwell-plugins).
+The catalog data is available at
+[`catalog.json`](https://raw.githubusercontent.com/Null-Workspace/Stackwell-plugins/main/catalog.json).
+The desktop application does not yet install catalog entries automatically; catalog
+browsing and installation require a later host-side integration.
+
 ## Build
 
 Requirements: C++20 compiler, CMake 3.25+, vcpkg.
