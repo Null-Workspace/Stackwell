@@ -1,63 +1,56 @@
 # Stackwell
 
-Stackwell is a minimal, plugin-first application host written in C++20.
+**Stackwell** is a minimal, plugin-first application host. The host provides the runtime; optional functionality is supplied by independently distributed native plugins.
 
-The host provides infrastructure only: application lifecycle, configuration, logging,
-plugin discovery and plugin lifecycle. Product functionality belongs in plugins.
-A plugin is distributed as one native module file (`.dll` on Windows, `.so` on Linux,
-`.dylib` on macOS) placed directly in the configured plugin directory. The host scans
-that directory only; it does not require a folder or sidecar manifest for each plugin.
+> **Current release line: 0.1.x (initial working foundation).** The Windows desktop shell, CLI, configuration, logging and native plugin lifecycle are implemented. Catalog browsing/installation, plugin-provided GUI pages and an installer are not part of this version.
 
-## Components
+## Get started
+
+- **[User guide](docs/user-guide.md)** — launch the application, navigate the desktop interface, manage plugin files and troubleshoot common problems.
+- **[Developer guide](docs/developer-guide.md)** — build the host, create a native plugin and understand the API v1 contract.
+- **[Documentation index](docs/README.md)** — documentation map and project status.
+- **[First release notes](docs/releases/0.1.0.md)** — scope and known limitations of the first version.
+
+The first packaged Windows x64 release will be published on the [GitHub Releases page](https://github.com/Null-Workspace/Stackwell/releases) after the release build workflow completes.
+
+## Product model
+
+The host is intentionally small:
 
 - **Core** — startup/shutdown, configuration and logging.
-- **Plugin runtime** — native module loading, ABI/version validation and lifecycle.
-- **CLI** — a thin frontend for host information and plugin inventory.
-- **Desktop** — a native Windows frontend using Win32, Direct2D and DirectWrite.
+- **Plugin runtime** — native library discovery, ABI validation and plugin lifecycle.
+- **CLI** — host information and plugin inventory.
+- **Desktop** — native Windows shell built with Win32, Direct2D and DirectWrite.
 
-The host contains no bundled utility modules or example plugins. With an empty plugin
-directory, Stackwell remains an empty host and plugin manager.
+The host does not bundle optional utility plugins. With an empty plugin directory, Stackwell remains a host and plugin manager.
 
-The community plugin catalog, public SDK header and plugin examples live in the separate
-[Stackwell Plugins repository](https://github.com/Null-Workspace/Stackwell-plugins).
-The catalog data is available at
-[`catalog.json`](https://raw.githubusercontent.com/Null-Workspace/Stackwell-plugins/main/catalog.json).
-The desktop application does not yet install catalog entries automatically; catalog
-browsing and installation require a later host-side integration.
+A plugin is distributed as one native module file: `.dll` on Windows, `.so` on Linux or `.dylib` on macOS. Put the file directly in the configured plugin directory; no per-plugin folder or sidecar manifest is required.
 
-## Build
+The community SDK, example plugins and catalog are maintained separately in the [Stackwell Plugins repository](https://github.com/Null-Workspace/Stackwell-plugins). The desktop host in 0.1.x does **not** download or install catalog entries automatically.
 
-Requirements: C++20 compiler, CMake 3.25+, vcpkg.
+## Build from source
+
+Requirements:
+
+- CMake 3.25 or newer
+- C++20 compiler
+- vcpkg
+- Visual Studio 2026 C++ workload for the supplied Windows presets
+
+Configure and build the Windows x64 Debug preset:
 
 ```powershell
 cmake --preset "Visual Studio Community 2026 Release - amd64"
 cmake --build --preset "Visual Studio Community 2026 Release - amd64-debug"
 ```
 
-Executables are placed in `out/build/<preset>/dist/bin`. Plugins are loaded from
-`out/build/<preset>/dist/plugins`.
+The desktop and CLI executables are written to `out/build/<preset>/dist/bin`. Runtime resources are copied to `dist/resources/config`; plugins are loaded from `dist/plugins`.
 
-## Plugin ABI
+See the [developer guide](docs/developer-guide.md) for the full setup and plugin ABI.
 
-The C-compatible contract is declared in
-`include/stackwell/plugin/plugin_api.h`. A plugin exports
-`stackwell_plugin_query`, returns a descriptor, and implements initialize/shutdown.
-The host validates the descriptor and API version before initialization.
+## Security
 
-Plugins are native code and execute in-process with the host's permissions. Only install
-plugins from sources you trust.
-
-## Configuration
-
-Runtime configuration is copied to `dist/resources/config/config.json`. Relative
-paths are resolved from the distribution directory. The plugin directory defaults to
-`plugins`; logs and storage default to `logs` and `data`.
-
-## Desktop
-
-The desktop shell contains only Overview, Plugins and Settings. It does not expose
-hardcoded pages for optional functionality. Plugin-specific UI contributions require
-an explicit extension API and are not represented as available until that API exists.
+Plugins are native code loaded into the Stackwell process. They run with the same operating-system permissions as the host and are **not sandboxed**. Install plugins only from sources you trust.
 
 ## License
 

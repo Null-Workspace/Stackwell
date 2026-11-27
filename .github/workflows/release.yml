@@ -1,0 +1,67 @@
+name: Build and publish Stackwell
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows-x64:
+    name: Windows x64 / Release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        shell: pwsh
+        run: |
+          if (-not $env:VCPKG_INSTALLATION_ROOT) {
+            throw "VCPKG_INSTALLATION_ROOT is not available on this runner."
+          }
+          cmake -S . -B build -A x64 "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $dist = Join-Path $PWD "build/dist"
+          if (-not (Test-Path (Join-Path $dist "bin/stackwell-desktop.exe"))) {
+            throw "Desktop executable was not produced."
+          }
+          if (-not (Test-Path (Join-Path $dist "bin/stackwell.exe"))) {
+            throw "CLI executable was not produced."
+          }
+          $archive = "Stackwell-${{ github.ref_name }}-windows-x64.zip"
+          Compress-Archive -Path (Join-Path $dist "*") -DestinationPath $archive -Force
+          Get-FileHash $archive -Algorithm SHA256 |
+            ForEach-Object { "$($_.Hash.ToLower())  $archive" } |
+            Set-Content "$archive.sha256"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Stackwell-windows-x64
+          path: |
+            Stackwell-*-windows-x64.zip
+            Stackwell-*-windows-x64.zip.sha256
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Stackwell ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            Stackwell-*-windows-x64.zip
+            Stackwell-*-windows-x64.zip.sha256
